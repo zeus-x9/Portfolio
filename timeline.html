@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberpunk Timeline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0c10;
+      --text-color: #ffffff;
+      --accent-1: #66fcf1;
+      --accent-2: rgb(0, 255, 102);
+      --blob-1: rgba(102, 252, 241, 0.1);
+      --blob-2: rgba(157, 78, 221, 0.15);
+      --blob-3: rgba(0, 255, 102,0.1);
+      --blob-4: rgb(220, 20, 60,0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: var(--bg-color); color: var(--text-color);
+      font-family: 'Share Tech Mono', monospace; min-height: 100vh;
+      overflow-x: hidden; overflow-y: auto;
+    }
+    .abstract-background { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; overflow: hidden; }
+    .pixel-pfp { width: 700px; right: -5vh; bottom: 0; display: block; position: fixed; z-index: 0; opacity: 0.35; pointer-events: none; }
+    #matrix { display: block; position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; background: transparent; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(80px); animation: float 12s infinite alternate ease-in-out; z-index: 2; }
+    .blob-1 { width: 1000px; height: 1000px; background: var(--blob-1); top: -200px; left: -200px; }
+    .blob-2 { width: 700px; height: 700px; background: var(--blob-2); bottom: -150px; right: -200px; animation-delay: -6s; }
+    .blob-3 { width: 750px; height: 750px; background: var(--blob-3); top: -250px; right: 500px; animation-delay: -6s; }
+    .blob-4 { width: 800px; height: 800px; background: var(--blob-4); bottom: -250px; left: 400px; animation-delay: -6s; }
+    
+    @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(80px, 60px) scale(1.15); } }
+    #dotsCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 3; pointer-events: none; }
+    .viewport-center {
+      position: relative; z-index: 4; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start; min-height: 100vh;
+      text-align: center; padding: 2rem;
+    }
+
+    #main-website {
+      display: none; opacity: 0; width: min(1100px, 100%);
+      padding: 2rem 1rem 0;
+    }
+    
+    .scroll-cue {
+      margin-top: 3rem; color: var(--accent-2); font-size: 0.9rem;
+      letter-spacing: 3px; animation: cue-bob 1.5s ease-in-out infinite;
+      position: absolute; left: 0; right: 0; width: 150px; margin: 0 auto;
+      font-size: 40px; top: 80vh;
+    }
+    .scroll-cue .arrow { display: block; margin-top: 0.5rem; font-size: 2rem; }
+    @keyframes cue-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+
+    #timeline {
+      position: relative; width: 100%; height: 3800px;
+      margin: 0 auto; padding-bottom: 8rem; margin-top: 100vh;
+    }
+    #timeline svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    #timeline-path {
+      fill: none; stroke: white; stroke-width: 3; stroke-linecap: round;
+      filter: drop-shadow(0 0 5px white); stroke-dasharray: 1; stroke-dashoffset: 1;
+      transition: stroke-dashoffset 0.25s linear;
+    }
+    
+    .timeline-item {
+      position: absolute; display: flex; align-items: center; gap: 2rem;
+      left: 10%; width: calc(90% - 1rem);
+      transform: translateY(-50%) translateY(20px);
+      opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .timeline-item.visible { opacity: 1; transform: translateY(-50%) translateY(0); }
+    
+    .timeline-dot-wrapper {
+      position: relative; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      margin-left: -10px;
+    }
+    .timeline-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #ffffff; box-shadow: 0 0 10px #ffffff, 0 0 25px var(--accent-2);
+      z-index: 5;
+    }
+
+    .profile-card {
+      display: flex; align-items: center; gap: 2.5rem;
+      background: rgba(11, 12, 16, 0.75);
+      border: 1px solid var(--accent-1);
+      box-shadow: 0 0 30px rgba(102, 252, 241, 0.15);
+      padding: 2rem 2.5rem; border-radius: 12px;
+      backdrop-filter: blur(8px); text-align: left;
+      position: relative; overflow: hidden; width: 100%;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .profile-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 35px rgba(102, 252, 241, 0.25);
+    }
+    .profile-card::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(transparent 50%, rgba(102, 252, 241, 0.03) 50%);
+      background-size: 100% 4px; pointer-events: none;
+    }
+    .profile-img-wrapper {
+      position: relative; flex-shrink: 0;
+    }
+    .profile-img {
+      width: 300px; height: 300px; object-fit: cover; object-position: top;
+      border-radius: 16px; border: 2px solid var(--accent-2);
+      box-shadow: 0 0 20px rgba(0, 255, 102, 0.3); position: relative; z-index: 2;
+      image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;
+      transform: translateZ(0); backface-visibility: hidden;
+    }
+    .profile-info { flex-grow: 1; }
+    .profile-info h1 {
+      font-size: 2.5rem; color: var(--accent-1);
+      text-shadow: 0 0 15px rgba(102, 252, 241, 0.4); margin-bottom: 0.2rem;
+      text-transform: uppercase;
+    }
+    .profile-info h2 {
+      font-size: 1rem; color: var(--accent-2);
+      margin-bottom: 1rem; letter-spacing: 2px;
+    }
+    .stats-list {
+      list-style: none; margin-bottom: 1rem; color: #c5c6c7;
+    }
+    .stats-list li {
+      margin-bottom: 0.5rem; font-size: 1.1rem; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 0.3rem;
+    }
+    .stats-list span {
+      color: var(--accent-1); font-weight: 200; width: 80px; display: inline-block;
+    }
+    .bio {
+      line-height: 1.6; color: #e0e0e0; border-left: 3px solid var(--accent-2);
+      padding-left: 1.2rem; font-size: 1.05rem; background: rgba(0, 255, 102, 0.05); padding: 0.8rem 1rem 0.8rem 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+      #timeline { height: 4200px; }
+      .profile-card { flex-direction: column; text-align: center; padding: 1.5rem; gap: 1.5rem; }
+      .profile-img { width: 140px; height: 140px; }
+      .profile-info h1 { font-size: 1.8rem; }
+      .bio { border-left: none; border-top: 3px solid var(--accent-2); }
+    }
+
+    #preloader-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: var(--accent-2); display: flex; align-items: center;
+      justify-content: center; z-index: 9999; opacity: 1; pointer-events: all;
+    }
+    #preloader-overlay p { font-size: 2.5rem; font-weight: bold; color: #0b0c10; letter-spacing: 3px; white-space: pre; }
+    .page-title {
+      font-size: 3rem; color: var(--accent-1);
+      text-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
+      margin-bottom: 2.5rem; text-transform: uppercase; letter-spacing: 2px;
+    }
+    .top-intro-bio {
+      line-height: 1.6; color: #e0e0e0; border-left: 3px solid var(--accent-2);
+      font-size: 1.3rem; background: rgba(0, 255, 102, 0.05); padding: 1rem 1rem 1rem 1.2rem;
+      margin-top: 150px; position: absolute; width: min(800px, 90vw);
+    }
+    .top-nav {
+      position: fixed; top: 0; left: 0; width: 100vw;
+      display: flex; justify-content: space-between;
+      padding: 2rem 3rem; pointer-events: none; z-index: 10;
+    }
+    .trigger-btn {
+      padding: 14px 32px; font-size: 1.1rem; font-family: 'Share Tech Mono', monospace;
+      color: var(--accent-2); background: rgba(11, 12, 16, 0.5); 
+      border: 2px solid var(--accent-2);
+      cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
+      transition: all 0.3s ease; box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+      text-decoration: none; pointer-events: all; backdrop-filter: blur(5px);
+    }
+    .trigger-btn:hover {
+      background: var(--accent-2); color: #000000; box-shadow: 0 0 25px var(--accent-2);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="abstract-background">
+    <img class="pixel-pfp" src="glitch-animation-remove-background.gif" alt="">
+    <canvas id="matrix"></canvas>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+  </div>
+  <canvas id="dotsCanvas"></canvas>
+
+  <div class="viewport-center">
+    <main id="main-website">
+      <nav class="top-nav">
+        <a href="index.html" class="trigger-btn">About Me</a>
+        <a href="Activities.html" class="trigger-btn">Activities</a>
+      </nav>
+
+      <h1 class="page-title">&gt; BAHAA AMER // TIMELINE</h1>
+      <a href="projects.html" class="trigger-btn">Projects</a>
+      <p class="top-intro-bio" style="margin-left: 125px;">
+      I have been interested and amused by the concept of coding, ever since 2020 when I randomly saw my brother watching Harvard's "Intro to CS50", and I didn't see hundreds of lines of code, or tough syntax, or unexplainable errors, I saw two connected blocks: "When green flag is pressed : say "Hello World!". And that's how my journey began... From Scratch.
+      </p>
+      
+      <div class="scroll-cue" aria-hidden="true">
+        SCROLL DOWN
+        <span class="arrow">↓</span>
+      </div>
+
+      <section id="timeline" aria-label="Timeline from 2020 to 2027">
+        <svg viewBox="0 0 1000 3800" preserveAspectRatio="none" aria-hidden="true">
+          <path id="timeline-path" pathLength="1"
+            d="M 100 0 
+               C 110 35, 110 90, 100 125 C 90 160, 90 215, 100 250
+               C 110 285, 110 340, 100 375 C 90 410, 90 465, 100 500
+               C 110 535, 110 590, 100 625 C 90 660, 90 715, 100 750
+               C 110 785, 110 840, 100 875 C 90 910, 90 965, 100 1000
+               C 110 1035, 110 1090, 100 1125 C 90 1160, 90 1215, 100 1250
+               C 110 1285, 110 1340, 100 1375 C 90 1410, 90 1465, 100 1500
+               C 110 1535, 110 1590, 100 1625 C 90 1660, 90 1715, 100 1750
+               C 110 1785, 110 1840, 100 1875 C 90 1910, 90 1965, 100 2000
+               C 110 2035, 110 2090, 100 2125 C 90 2160, 90 2215, 100 2250
+               C 110 2285, 110 2340, 100 2375 C 90 2410, 90 2465, 100 2500
+               C 110 2535, 110 2590, 100 2625 C 90 2660, 90 2715, 100 2750
+               C 110 2785, 110 2840, 100 2875 C 90 2910, 90 2965, 100 3000
+               C 110 3035, 110 3090, 100 3125 C 90 3160, 90 3215, 100 3250
+               C 110 3285, 110 3340, 100 3375 C 90 3410, 90 3465, 100 3500
+               C 110 3535, 110 3590, 100 3625 C 90 3660, 90 3715" />
+        </svg>
+
+        <div class="timeline-item" style="top: 125px;">
+          <div class="timeline-dot-wrapper"><span class="timeline-dot"></span></div>
+          <div class="profile-card">
+            <div class="profile-img-wrapper">
+              <a href="https://scratch.mit.edu/projects/577807096/editor" target="_blank" rel="noopener">
+                <img src="scratch2020.png" alt="Scratch Project" class="profile-img">
+              </a>
+            </div>
+            <div class="profile-info">
+              <h1>SCRATCH</h1>
+              <h2>&gt; SYSTEM_USER // TIMELINE_LOG</h2>
+              <ul class="stats-list">
+                <li><span>Date:</span> 2020</li>
+              </ul>
+              <p class="bio">I learned scratch and made my first interactive block-based programs.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item" style="top: 625px;">
+          <div class="timeline-dot-wrapper"><span class="timeline-dot"></span></div>
+          <div class="profile-card">
+            <div class="profile-img-wrapper">
+              <a href="https://scratch.mit.edu/projects/663380132/">
+              <img src="scratch2022.png" alt="Bahaa Amer" class="profile-img">
+              </a>
+            </div>
+            <div class="profile-info">
+              <h1>SCRATCH</h1>
+              <h2>&gt; SYSTEM_USER // TIMELINE_LOG</h2>
+              <ul class="stats-list">
+                <li><span>Date:</span> 2021</li>
+              </ul>
+              <p class="bio">I finished my first official programming project.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item" style="top: 1125px;">
+          <div class="timeline-dot-wrapper"><span class="timeline-dot"></span></div>
+          <div class="profile-card">
+            <div class="profile-img-wrapper">
+              <img src="python.png" alt="Bahaa Amer" class="profile-img" style="object-fit: fill;">
+            </div>
+            <div class="profile-info">
+              <h1>PYTHON</h1>
+              <h2>&gt; SYSTEM_USER // TIMELINE_LOG</h2>
+              <ul class="stats-list">
+                <li><span>Date:</span> 2022</li>
+              </ul>
+              <p class="bio">I learned Python basics and explored conditions & loops.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item" style="top: 1625px;">
+          <div class="timeline-dot-wrapper"><span class="timeline-dot"></span></div>
+          <div class="profile-card">
+            <div class="profile-img-wrapper">
+              <img src="unity.png" alt="Bahaa Amer" class="profile-img">
+            </div>
+            <div class="profile-info">
+              <h1>UNITY</h1>
+              <h2>&gt; SYSTEM_USER // TIMELINE_LOG</h2>
+              <ul class="stats-list">
+                <li><span>Date:</span> 2023</li>
+              </ul>
+              <p class="bio">I tried using Unity to explore game development logic.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item" style="top: 2125px;">
+          <div class="timeline-dot-wrapper"><span class="timeline-dot"></span></div>
+          <div class="profile-card">
+            <div class="profile-img-wrapper">
+              <img src="webdev.png" alt="Bahaa Amer" class="profile-img">
+            </div>
+            <div class="profile-info">
+              <h1>WEB DEV</h1>
+              <h2>&gt; SYSTEM_USER // TIMELINE_LOG</h2>
+              <ul class="stats-list">
+                <li><span>Date:</span> 2024</li>
+              </ul>
+              <p class="bio">Expanded into web design and interactive digital projects.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item" style="top: 2625px;">
+          <div class="timeline-dot-wrapper"><span class="timeline-dot"></span></div>
+          <div class="profile-card">
+            <div class="profile-img-wrapper">
+              <img src="Padel.jpg" alt="Bahaa Amer" class="profile-img">
+            </div>
+            <div class="profile-info">
+              <h1>BREAK</h1>
+              <h2>&gt; SYSTEM_USER // TIMELINE_LOG</h2>
+              <ul class="stats-list">
+                <li><span>Date:</span> 2025</li>
+              </ul>
+              <p class="bio">I took a break from programming and started pursuing diverse physical activities.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item" style="top: 3125px;">
+          <div class="timeline-dot-wrapper"><span class="timeline-dot"></span></div>
+          <div class="profile-card">
+            <div class="profile-img-wrapper">
+              <img src="codebrave.png" alt="Bahaa Amer" class="profile-img" style="object-fit: scale-down;object-position: center;background-color: #000000;">
+            </div>
+            <div class="profile-info">
+              <h1>CODEBRAVE</h1>
+              <h2>&gt; SYSTEM_USER // TIMELINE_LOG</h2>
+              <ul class="stats-list">
+                <li><span>Date:</span> 2026</li>
+              </ul>
+              <p class="bio">Enrolled in Codebrave web development & Python learning program, building my portfolio.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item" style="top: 3625px;">
+          <div class="timeline-dot-wrapper"><span class="timeline-dot"></span></div>
+          <div class="profile-card">
+            <div class="profile-img-wrapper">
+              <img src="Padel.jpg" alt="Bahaa Amer" class="profile-img">
+            </div>
+            <div class="profile-info">
+              <h1>BAHAA AMER</h1>
+              <h2>&gt; SYSTEM_USER // TIMELINE_LOG</h2>
+              <ul class="stats-list">
+                <li><span>Date:</span> 2027</li>
+              </ul>
+              <p class="bio">Working towards university applications, scholarships, and software engineering career goals.</p>
+            </div>
+          </div>
+        </div>
+        <div class="timeline-item" style="top: 4000px;opacity: 0;margin-top: 0px;">
+          <div class="timeline-dot-wrapper"><span class="timeline-dot"></span></div>
+          <div class="profile-card">
+            <div class="profile-img-wrapper">
+            </div>
+            <div class="profile-info">
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="preloader-overlay">
+    <p id="scramble-text">&lt; INITIALIZING &gt;</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

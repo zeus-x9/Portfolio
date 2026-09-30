@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberpunk Abstract Portfolio - About Me</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0c10;
+      --text-color: #ffffff;
+      --accent-1: #66fcf1;
+      --accent-2: rgb(0, 255, 102);
+      --blob-1: rgba(102, 252, 241, 0.1);
+      --blob-2: rgba(157, 78, 221, 0.15);
+      --blob-3: rgba(0, 255, 102, 0.1);
+      --blob-4: rgb(220, 20, 60, 0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    
+    .abstract-background {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 0; overflow: hidden;
+    }
+    .pixel-pfp {
+      width: 75vh; right: -5vh; bottom: 0; display: block;
+      position: fixed; z-index: 0; opacity: 0.35; pointer-events: none;
+    }
+    #matrix {
+      display: block; position: fixed; inset: 0; width: 100%; height: 100%;
+      z-index: 1; pointer-events: none; background: transparent;
+    }
+    .blob {
+      position: absolute; border-radius: 50%; filter: blur(80px);
+      animation: float 12s infinite alternate ease-in-out; z-index: 2;
+    }
+    .blob-1 { width: 1000px; height: 1000px; background: var(--blob-1); top: -200px; left: -200px; }
+    .blob-2 { width: 700px; height: 700px; background: var(--blob-2); bottom: -150px; right: -200px; animation-delay: -6s; }
+    .blob-3 { width: 750px; height: 750px; background: var(--blob-3); top: -250px; right: 500px; animation-delay: -6s; }
+    .blob-4 { width: 800px; height: 800px; background: var(--blob-4); bottom: -250px; left: 400px; animation-delay: -6s; }
+    
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(80px, 60px) scale(1.15); }
+    }
+    
+    #dotsCanvas {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 3; pointer-events: none;
+    }
+
+    .viewport-center {
+      position: relative; z-index: 4; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; min-height: 100vh;
+      text-align: center; padding: 6rem 2rem 2rem 2rem;
+    }
+
+    .top-nav {
+      position: fixed; top: 0; left: 0; width: 100vw;
+      display: flex; justify-content: space-between;
+      padding: 2rem 3rem; pointer-events: none; z-index: 10;
+    }
+    .trigger-btn {
+      padding: 14px 32px; font-size: 1.1rem; font-family: 'Share Tech Mono', monospace;
+      color: var(--accent-2); background: rgba(11, 12, 16, 0.5); 
+      border: 2px solid var(--accent-2);
+      cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
+      transition: all 0.3s ease; box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+      text-decoration: none; pointer-events: all; backdrop-filter: blur(5px);
+    }
+    .trigger-btn:hover {
+      background: var(--accent-2); color: #000000; box-shadow: 0 0 25px var(--accent-2);
+    }
+
+    #main-website { display: none; opacity: 0; width: 100%; max-width: 1300px; }
+    
+    .profile-card {
+      display: flex; align-items: center; gap: 3rem;
+      background: rgba(11, 12, 16, 0.65);
+      border: 1px solid var(--accent-1);
+      box-shadow: 0 0 30px rgba(102, 252, 241, 0.15);
+      padding: 3rem; border-radius: 12px;
+      backdrop-filter: blur(8px); text-align: left;
+      position: relative; overflow: hidden;
+    }
+    
+    .profile-card::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(transparent 50%, rgba(102, 252, 241, 0.03) 50%);
+      background-size: 100% 4px; pointer-events: none;
+    }
+
+    .profile-img-wrapper {
+      position: relative; flex-shrink: 0;
+    }
+    .profile-img {
+      width: 600px;
+      height: 600px;
+      object-fit: cover;
+      object-position: top;
+      border-radius: 24px;
+      border: 2px solid var(--accent-2);
+      box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
+      position: relative;
+      z-index: 2;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+    
+    .profile-info h1 {
+      font-size: 6rem; color: var(--accent-1);
+      text-shadow: 0 0 15px rgba(102, 252, 241, 0.4); margin-bottom: 0.2rem;
+      text-transform: uppercase;
+    }
+    .profile-info h2 {
+      font-size: 1.1rem; color: var(--accent-2);
+      margin-bottom: 1.5rem; letter-spacing: 2px;
+    }
+    
+    .stats-list {
+      list-style: none; margin-bottom: 1.5rem; color: #c5c6c7;
+    }
+    .stats-list li {
+      margin-bottom: 0.6rem; font-size: 1.1rem; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 0.4rem;
+    }
+    .stats-list span {
+      color: var(--accent-1); font-weight: 200; width: 100px; display: inline-block;
+    }
+
+    .bio {
+      line-height: 1.6; color: #e0e0e0; border-left: 3px solid var(--accent-2);
+      padding-left: 1.2rem; font-size: 1.05rem; background: rgba(0, 255, 102, 0.05); padding: 1rem 1rem 1rem 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+      .top-nav { padding: 1rem; top: 1rem; }
+      .trigger-btn { padding: 10px 16px; font-size: 0.9rem; }
+      .profile-card { flex-direction: column; text-align: center; padding: 2rem; gap: 2rem; }
+      .profile-img { width: 220px; height: 220px; border-radius: 50%; }
+      .stats-list span { display: block; width: 100%; margin-bottom: 0.2rem; }
+      .bio { border-left: none; border-top: 3px solid var(--accent-2); padding: 1rem; }
+    }
+    
+    #preloader-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: var(--accent-2); display: flex; align-items: center;
+      justify-content: center; z-index: 9999; opacity: 1; pointer-events: all;
+    }
+    #preloader-overlay p {
+      font-size: 2.5rem; font-weight: bold; color: #0b0c10;
+      letter-spacing: 3px; white-space: pre; text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="abstract-background">
+    <img class="pixel-pfp" src="glitch-animation-remove-background.gif" alt="">
+    <canvas id="matrix"></canvas>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+  </div>
+  <canvas id="dotsCanvas"></canvas>
+
+  <div class="viewport-center">
+    
+    <main id="main-website">
+      
+      <nav class="top-nav">
+        <a href="projects.html" class="trigger-btn">Projects</a>
+        <a href="Activities.html" class="trigger-btn">Activities</a>
+      </nav>
+
+      <div class="profile-card">
+        <div class="profile-img-wrapper">
+          <img src="pfp - Copy600.png" alt="Bahaa Amer" class="profile-img">
+        </div>
+        
+        <div class="profile-info">
+          <h1>BAHAA AMER</h1>
+          <h2>&gt; SYSTEM_USER // IDENTIFIED</h2>
+          
+          <ul class="stats-list">
+            <li><span>Name:</span> Bahaa Amer</li>
+            <li><span>Age:</span> 17 years old</li>
+            <li><span>Fav Hobby:</span> Gaming</li>
+            <li><span>Fun Fact:</span> I have around 10 cats and kittens</li>
+          </ul>
+          
+          <p class="bio">
+            I am a curious but cautious person, that likes to experiment, learn, and discover. Logical thinking is and has been my peer since childhood, which helped me greatly in life. I am currently enrolled in Codebrave - A web development and python learning program - and I'm working towards my college application and scholarships.
+          </p>
+        </div>
+      </div>
+      
+    </main>
+  </div>
+
+  <div id="preloader-overlay">
+    <p id="scramble-text">&lt; INITIALIZING &gt;</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

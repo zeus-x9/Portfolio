@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyberpunk Abstract Portfolio - Activities</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    a {
+    text-decoration: none;
+    }   
+    .img-cookie {
+      object-fit: cover;
+      object-position: left center;
+    }
+
+    #img-tindog {
+      object-fit: fill;
+    }
+
+    .img-country {
+      object-fit: fill;
+    }
+    :root {
+      --bg-color: #0b0c10;
+      --text-color: #ffffff;
+      --accent-1: #66fcf1;
+      --accent-2: rgb(0, 255, 102);
+      --blob-1: rgba(102, 252, 241, 0.1);
+      --blob-2: rgba(157, 78, 221, 0.15);
+      --blob-3: rgba(0, 255, 102, 0.1);
+      --blob-4: rgb(220, 20, 60, 0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    
+    .abstract-background {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 0; overflow: hidden;
+    }
+    .pixel-pfp {
+      width: 75vh; right: -5vh; bottom: 0; display: block;
+      position: fixed; z-index: 0; opacity: 0.35; pointer-events: none;
+    }
+    #matrix {
+      display: block; position: fixed; inset: 0; width: 100%; height: 100%;
+      z-index: 1; pointer-events: none; background: transparent;
+    }
+    .blob {
+      position: absolute; border-radius: 50%; filter: blur(80px);
+      animation: float 12s infinite alternate ease-in-out; z-index: 2;
+    }
+    .blob-1 { width: 1000px; height: 1000px; background: var(--blob-1); top: -200px; left: -200px; }
+    .blob-2 { width: 700px; height: 700px; background: var(--blob-2); bottom: -150px; right: -200px; animation-delay: -6s; }
+    .blob-3 { width: 750px; height: 750px; background: var(--blob-3); top: -250px; right: 500px; animation-delay: -6s; }
+    .blob-4 { width: 800px; height: 800px; background: var(--blob-4); bottom: -250px; left: 400px; animation-delay: -6s; }
+    
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(80px, 60px) scale(1.15); }
+    }
+    
+    #dotsCanvas {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      z-index: 3; pointer-events: none;
+    }
+
+    .viewport-center {
+      position: relative; z-index: 4; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start; min-height: 100vh;
+      text-align: center; padding: 7rem 2rem 4rem 2rem;
+    }
+
+    .top-nav {
+      position: fixed; top: 0; left: 0; width: 100vw;
+      display: flex; justify-content: space-between;
+      padding: 2rem 3rem; pointer-events: none; z-index: 10;
+    }
+    .trigger-btn {
+      padding: 14px 32px; font-size: 1.1rem; font-family: 'Share Tech Mono', monospace;
+      color: var(--accent-2); background: rgba(11, 12, 16, 0.5); 
+      border: 2px solid var(--accent-2);
+      cursor: pointer; text-transform: uppercase; letter-spacing: 2px;
+      transition: all 0.3s ease; box-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
+      text-decoration: none; pointer-events: all; backdrop-filter: blur(5px);
+    }
+    .trigger-btn:hover {
+      background: var(--accent-2); color: #000000; box-shadow: 0 0 25px var(--accent-2);
+    }
+
+    #main-website { display: none; opacity: 0; width: 100%; max-width: 1000px; }
+    
+    .page-title {
+      font-size: 3rem; color: var(--accent-1);
+      text-shadow: 0 0 15px rgba(102, 252, 241, 0.4);
+      margin-bottom: 2.5rem; text-transform: uppercase; letter-spacing: 2px;
+    }
+
+    .activities-grid {
+      display: flex; flex-direction: column; gap: 2.5rem; width: 100%;
+    }
+
+    .activity-card {
+      display: flex; align-items: center; gap: 2.5rem;
+      background: rgba(11, 12, 16, 0.7);
+      border: 1px solid var(--accent-1);
+      box-shadow: 0 0 25px rgba(102, 252, 241, 0.1);
+      padding: 2.5rem; border-radius: 12px;
+      backdrop-filter: blur(8px); text-align: left;
+      position: relative; overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s ease;
+    }
+
+    .activity-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .activity-card.visible:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 35px rgba(102, 252, 241, 0.25);
+    }
+
+    .activity-card::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(transparent 50%, rgba(102, 252, 241, 0.02) 50%);
+      background-size: 100% 4px; pointer-events: none;
+    }
+
+    .activity-img {
+      width: 300px; height: 300px; object-fit: cover; border-radius: 8px;
+      border: 2px solid var(--accent-2); box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+      flex-shrink: 0; image-rendering: -webkit-optimize-contrast; transform: translateZ(0);
+    }
+
+    .activity-info {
+      flex: 1; display: flex; flex-direction: column; gap: 0.8rem;
+    }
+
+    .activity-info h2 {
+      font-size: 2rem; color: var(--accent-2);
+      text-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
+      text-transform: uppercase;
+    }
+
+    .activity-rating {
+      font-size: 1rem; color: var(--accent-1); font-weight: bold; letter-spacing: 1px;
+    }
+
+    .activity-info p {
+      font-size: 1.050rem; color: #d0d0d0; line-height: 1.5; font-family: 'Share Tech Mono', monospace;
+    }
+
+    .activity-note {
+      font-size: 0.95rem; color: var(--accent-2); font-style: italic; border-left: 2px solid var(--accent-2); padding-left: 0.8rem; margin-top: 0.3rem;
+    }
+
+    @media (max-width: 768px) {
+      .top-nav { padding: 1rem; top: 1rem; }
+      .trigger-btn { padding: 10px 16px; font-size: 0.85rem; }
+      .activity-card { flex-direction: column; text-align: center; padding: 1.5rem; }
+      .activity-img { width: 100%; height: 200px; }
+      .activity-info { text-align: center; }
+      .activity-note { border-left: none; border-top: 2px solid var(--accent-2); padding-top: 0.5rem; padding-left: 0; }
+    }
+    
+    #preloader-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: var(--accent-2); display: flex; align-items: center;
+      justify-content: center; z-index: 9999; opacity: 1; pointer-events: all;
+    }
+    #preloader-overlay p {
+      font-size: 2.5rem; font-weight: bold; color: #0b0c10;
+      letter-spacing: 3px; white-space: pre; text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="abstract-background">
+    <img class="pixel-pfp" src="glitch-animation-remove-background.gif" alt="">
+    <canvas id="matrix"></canvas>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+  </div>
+  <canvas id="dotsCanvas"></canvas>
+
+  <div class="viewport-center">
+    
+    <main id="main-website">
+      
+      <nav class="top-nav">
+        <a href="index.html" class="trigger-btn">About Me</a>
+        <a href="Activities.html" class="trigger-btn">Activities</a>
+      </nav>
+
+      <h1 class="page-title">&gt; BAHAA AMER // PROJECTS</h1>
+
+      <div class="activities-grid">
+        <div class="activity-card" style="margin-top: 100px;">
+          <img src="cookie.png" alt="" class="activity-img img-cookie" >
+          <div class="activity-info">
+            <h2>Cookie Ingridients</h2>
+            <div class="activity-rating">&gt; RATING: 6 / 10</div>
+            <p>My first WebPage, it may not look like much, but I deeply appreciate that it got me to love web development.</p>
+            <div class="activity-note"></div>
+          </div>
+        </div>
+
+        
+        <div class="activity-card" style="margin-top: 200px;">
+          <a href="https://zeus-x9.github.io/TinDog/">
+          <img src="tindog.png" alt="" class="activity-img" id="img-tindog">
+          </a>
+          <div class="activity-info">
+            <h2>TinDog</h2>
+            <div class="activity-rating">&gt; RATING: 8 / 10</div>
+            <p>The first project that let my creativity loose in pursuit of elegant but impactful design by combining the elegance of CSS and the versatility of JS.</p>
+            <div class="activity-note" style="font-size: small;">click img</div>
+          </div>
+        </div>
+        
+
+        
+        <div class="activity-card" style="margin-top: 200px;">
+          <a href="https://zeus-x9.github.io/CountryGuide/">
+          <img src="country.png" alt="" class="activity-img img-country">
+          </a>
+          <div class="activity-info">
+            <h2>Intro To Japan</h2>
+            <div class="activity-rating">&gt; RATING: 9 / 10</div>
+            <p>A project that I fueled with a lot of time and effort, and in return I gained valuable knowledge both in programming and web development, and regarding Japan's cultural identity.</p>
+            <div class="activity-note" style="font-size: small;">click img</div>
+          </div>
+        
+        </div>
+        
+      </div>
+      <div style="margin-top: 125px;"><a href="timeline.html" class="trigger-btn">Timeline</a></div>
+      
+    </main>
+  </div>
+
+  <div id="preloader-overlay">
+    <p id="scramble-text">&lt; INITIALIZING &gt;</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
